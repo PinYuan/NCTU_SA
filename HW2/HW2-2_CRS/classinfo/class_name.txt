@@ -1,0 +1,130 @@
+1	Calculus (I)
+2	Calculus (I)
+3	Calculus (I)
+4	Calculus (I)
+5	Calculus (I)
+6	Calculus (I)
+7	Calculus (I)
+8	Physics(I)
+9	Physics(I)
+10	Physics (I)
+11	Physics (I)
+12	Physics (I)
+13	Physics (I)
+14	Physics (I)
+15	Physics (I)
+16	Career Planning and Mentor of Hours
+17	Competitive Programming (II)
+18	Competitive Programming(III)
+19	LabVIEW Programming Language
+20	Mathematical Logic\r
+21	Digital Systems Design
+22	Service Learning II
+23	Electrical Circuits and Electronics (I)  
+24	Design and Implementation of IOT Applications
+25	Introduction to Cryptography
+26	Digital Circuit Lab.
+27	Introduction to Multimedia Information System
+28	Introduction to Pattern Recognition
+29	Introduction to Machine Learning
+30	Network Planning and Management Practices
+31	Android Progr
+32	Intro. to Network Programming
+33	Introduction to Computer Graphics
+34	Computer System Administration
+35	Introduction to Computers and Programming
+36	Introduction to Computers and Programming
+37	Introduction to Computers and Programming
+38	Probability
+39	Intro. to Computer Networks
+40	Introduction to Algorithms
+41	Basic Programming
+42	Intro. to Compiler Design
+43	Linear Algebra
+44	Linear Algebra
+45	Computer Science and Engineering Projects (I)
+46	Introduction to Operating Systems
+47	Computer Science Seminars
+48	Microprocessor System Lab.
+49	Microprocessor System Lab.
+50	Probability 
+51	Introduction to Algorithms
+52	Introduction to Algorithms
+53	Computer Science and Engineering Projects (II)
+54	Introduction to Operating Systems
+55	Introduction to Operating Systems
+56	Intro. to Computer Networks
+57	Intro. to Computer Networks
+58	Intro. to Computer Networks
+59	Intro. to Compiler Design
+60	Linear Algebra
+61	Differential Equations
+62	Differential Equations
+63	Formal Languages and Theory of Computation
+64	Logic Design and Design for Security
+65	Queuing Theory
+66	Cloud Fog Computing and Big Data Analytics
+67	Entrepreneurship Realization
+68	The  Paradigms of Novels
+69	Sociology
+70	Introduction to Music Theory
+71	Life Science
+72	Introduction to Psychology
+73	Contemporary World
+74	Political Science
+75	Introduction to Music
+76	Taiwanese Literature
+77	History Analysis: Introduction to the World History
+78	Introduction to Laws
+79	Introduction to Philosophy
+80	Selected Readings on Lu Xun
+81	History's Turning Points
+82	The Shift of Global Economy and Industries
+83	Love and Marriage--from Ancient  to Modern
+84	Cognition and Presentation
+85	The Rise and Fall of the Great Powers
+86	Freshman English (I)
+87	Freshman English (I)
+88	Freshman English (I)
+89	Freshman English (I)
+90	Freshman English (I)
+91	Physical Education
+92	Physical Education
+93	Physical Education
+94	Physical Education
+95	Physical Education
+96	Physical Education
+97	Physical Education
+98	Physical Education
+99	Physical Education
+100	Physical Education
+101	Physical Education
+102	Physcial Education
+103	Physcial Education
+104	Physical Education
+105	Physical Education
+106	Physical Education
+107	Physical Education
+108	Physical Education
+109	Physical Education
+110	Physcial Education
+111	Physcial Education
+112	Career Planning and Mentor of Hours
+113	Competitive Programming (II)
+114	Competitive Programming(III)
+115	LabVIEW Programming Language
+116	Mathematical Logic\r
+117	Digital Systems Design
+118	Service Learning II
+119	Electrical Circuits and Electronics (I)  
+120	Design and Implementation of IOT Applications
+121	Introduction to Cryptography
+122	Digital Circuit Lab.
+123	Introduction to Multimedia Information System
+124	Introduction to Pattern Recognition
+125	Introduction to Machine Learning
+126	Network Planning and Management Practices
+127	Android Progr
+128	Intro. to Network Programming
+129	Introduction to Computer Graphics
+130	Computer System Administration
