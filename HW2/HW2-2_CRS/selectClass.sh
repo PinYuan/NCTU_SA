@@ -1,9 +1,5 @@
 #!/bin/bash
 
-while read item class; do
-	totalArray[${item}]=${class}
-done < classinfo/class_total.txt
-
 initUserData() {
 	test -d usr
 	if [ $? != 0 ] ; then
@@ -22,13 +18,11 @@ initUserData() {
 }
 
 addClass() {
-	unset paires
-	unset selected
-	unset new_unselected
-	unset unselected_arr
-	unset selected_arr
-	local paires
-
+	local paires=()
+	selected=()
+	new_unselected=()
+	unselected_arr=()
+	selected_arr=()
 
 	sort -n -k 1 -o usr/unselected.txt usr/unselected.txt
 	sort -n -k 1 -o usr/selected.txt usr/selected.txt
@@ -51,7 +45,7 @@ addClass() {
 	for num in {1..130}; do
 		if [ -n "${unselected_arr[${num}]}" ] ; then
 			paires+=(${num} ${unselected_arr[${num}]} off)
-		else
+		elif [ -n "${selected_arr[${num}]}" ] ; then
 			paires+=(${num} ${selected_arr[${num}]} on)
 		fi
 	done
@@ -75,16 +69,6 @@ addClass() {
 
 checkCollision() {
 	> usr/selected.txt
-
-	# build a number2time array
-	while read item time; do
-		timeArray[${item}]=${time}
-	done < classinfo/class_time.txt
-
-	# build a number2name array
-	while read item name; do
-		nameArray[${item}]=${name}
-	done < classinfo/class_name.txt
 
 	unset conflictMAP
 	declare -Ag conflictMAP 

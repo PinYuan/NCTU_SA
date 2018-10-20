@@ -3,7 +3,9 @@
 source prepareClassinfo.sh
 source printTimetable.sh
 source selectClass.sh
+source selectEmptyClass.sh
 source options.sh
+source search.sh
 
 initUserData
 initOption
@@ -15,8 +17,22 @@ while true; do
 	state=$(cat usr/state.txt)
 	case ${state} in
 		0) # add class
+			searchOrNot
+			if [ $? = 0 -a $(cat usr/searchWhich.txt) != 3 ] ; then
+				if [ $(cat usr/searchWhich.txt) = 1 ] ; then
+					searchByTime
+				else
+					searchByName
+				fi
+				rm usr/searchWhich.txt
+			fi
+
 			while true; do
-				addClass
+				if [ ${options[3]} = 0 ] ; then
+					addEmptyClass
+				else
+					addClass
+				fi
 				if [ $? != 0 ] ; then # cancel
 					break
 				fi
@@ -28,7 +44,7 @@ while true; do
 			done
 		;;
 		3) # options
-			optionWin
+			optionWindow
 			loadOptions
 		;;
 		2) # exit

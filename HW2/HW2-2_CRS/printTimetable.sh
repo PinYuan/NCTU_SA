@@ -3,7 +3,7 @@
 seperateLine="  =============="
 spaceLine="            "
 spaceSmallLine="           "
-spaceDayLine="            "
+spaceDayLine="            " 
 daysFull=".Mon .Tue .Wed .The .Fri .Sat .Sun"
 daysLimit=".Mon .Tue .Wed .The .Fri"
 hoursFull=(M N A B C D X E F G H I J K L) # less importtant: 0, 1, 6, 14
@@ -24,7 +24,7 @@ length=13
 # }
 
 resetRowTable() {
-	unset rowtable
+	rowtable=()
 	
 	if [ ${options[2]} = 0 ] ; then
 		days=${daysLimit}
@@ -39,22 +39,6 @@ resetRowTable() {
 			rowtable[${i}]=""
 		done
 	fi
-}
-
-loadOptions() {
-	selected=$(cat usr/options.txt)
-
-	for i in 1 2; do
-		options[${i}]=1
-		for num in ${selected}; do
-			if [ "${i}" = "${num}" ] ; then
-				options[${i}]=0
-				break
-			fi
-		done
-	done
-
-	resetRowTable
 }
 
 printDay() {
@@ -129,21 +113,6 @@ printTable() {
 		touch usr/sortclass.txt
 	fi
 
-	# build a number2time array
-	while read item time; do
-		timeArray[${item}]=${time}
-	done < classinfo/class_time.txt
-
-	# build a number2name array
-	while read item name; do
-		nameArray[${item}]=${name}
-	done < classinfo/class_name.txt
-
-	# build a number2place array
-	while read item place; do
-		placeArray[${item}]=${place}
-	done < classinfo/class_place.txt
-
 	# time name place 
 	while read selected_num; do
 		name=${nameArray[${selected_num}]}
@@ -160,9 +129,14 @@ printTable() {
 
 	IFS=$'\t'
 	while read time name place; do
+		if [ ${options[2]} = 0 ] && [ ${time:1:1} = 6 -o ${time:1:1} = 7 ] ; then
+			continue
+		fi
 		hourMap[${time:0:1}]+=${time:1:1}@${name}@${place}$'\n'
 	done < usr/sortclass.txt
 	IFS=$' \t\n'
+
+	table=""
 
 	printDay
 
@@ -175,6 +149,6 @@ printTable() {
 
 	dialog --stdout --title "Timetable" --ok-label "Add class" --extra-button --extra-label "Options" --help-button --help-label "Exit" --textbox usr/table.txt  50 110
 	echo $? > usr/state.txt
-
+	
 	rm usr/sortclass.txt usr/table.txt
 }
