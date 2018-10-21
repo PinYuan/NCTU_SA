@@ -14,14 +14,13 @@ if [ $? != 0 ] ; then
 fi
 
 # extract data from json
-
+grep -o '"cos_time":"[^"]*"' classinfo/nctucsClass.json | grep -o '"[^"]*"$' | sed 's/"//g' > classinfo/class_time_place.txt
 # "cos_ename":"Calculus (I)"
-grep -oP '"cos_ename":"\K[^"]*(?=")' classinfo/nctucsClass.json > classinfo/class_name_tmp.txt
+grep -o '"cos_ename":"[^"]*"' classinfo/nctucsClass.json | grep -o '"[^"]*"$' | sed 's/"//g' > classinfo/class_name_tmp.txt
 # "cos_time_place":"1GH4CD-SC206"
-grep -oP '"cos_time":"\K[^"]*(?=")' classinfo/nctucsClass.json > classinfo/class_time_place.txt
 
 # class time
-grep -oP '^.*(?=-)' classinfo/class_time_place.txt | sed 's/-[^,]*,/,/g' | \
+grep -o '^.*-' classinfo/class_time_place.txt | sed 's/-[^,]*,/,/g' | \
 while read line; do
 	echo $(echo ${line} | grep -Eo '[0-9][A-Z]*')
 done > classinfo/class_time_tmp.txt
@@ -64,18 +63,20 @@ rm classinfo/class_name_tmp.txt classinfo/class_time_tmp.txt classinfo/class_pla
 while read item time; do
 	time=$(echo ${time} | sed 's/\ /\\ /g')
 	eval timeArray${item}=${time}
-	# echo ${item} ${time}
+#	echo ${item} ${time}
 done < classinfo/class_time.txt
    
 # build a number2name array
 while read item name; do
-	name=$(echo ${name} | sed 's/\ /\\ /g' | sed 's/\x27/\\\x27/g' | sed 's/(/\\(/g' | sed 's/)/\\)/g')
+	name=$(echo ${name} | sed 's/\ /\\ /g' | sed "s/'/\\\'/g" | sed 's/(/\\(/g' | sed 's/)/\\)/g')
 	eval nameArray${item}=${name}
 done < classinfo/class_name.txt
 
 # build total imformation array
 while read item class; do
-	eval totalArray${item}=$(echo ${class} | sed 's/\ /\\ /g' | sed 's/\x27/\\\x27/g' | sed 's/(/\\(/g' | sed 's/)/\\)/g')
+	class=$(echo ${class} | sed 's/\ /\\ /g' | sed "s/'/\\\'/g" | sed 's/(/\\(/g' | sed 's/)/\\)/g')
+	eval totalArray${item}=${class}
+	#eval totalArray${item}=$(echo ${class} | sed 's/\ /\\ /g' | sed 's/\x27/\\\x27/g' | sed 's/(/\\(/g' | sed 's/)/\\)/g')
 done < classinfo/class_total.txt
 
 # build a number2place array
