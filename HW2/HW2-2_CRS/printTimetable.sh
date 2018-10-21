@@ -47,12 +47,13 @@ printSepRow() {
 printRow() {
 	# args: time 1@class 2@class
 	# EX: A 1@Calculus (I) 2@Physics (I)
-
 	local time=$1
 	resetRowTable
 	local index=0
 	
-	for day_class in "$@"; do 
+	IFS=$'#\n'
+
+	for day_class in $@; do 
 		if [ index = 0 ] ; then 
 			index=$(( ${index}+1 ))
 			continue	
@@ -66,6 +67,8 @@ printRow() {
 			eval rowtable${day}=${class}
 		fi
 	done
+
+	IFS=$'\n'
 
 	for lineNum in $(seq 0 4); do # block have 5 line
 		if [ ${lineNum} = 0 ] ; then
@@ -92,7 +95,7 @@ printRow() {
 				if [ $(( ${#str} / ${length} )) -lt ${lineNum} ] ; then
 					printf "${boundaryChar}${startChar}${spaceLine}" >> usr/table.txt
 				else
-					substr=$(echo ${str} | cut -c $(( ${length}*${lineNum}+1 ))-$(( ${length}*${lineNum}+1+${length}} ))) 
+					substr=$(echo ${str} | cut -c $(( ${length}*${lineNum}+1 ))-$(( ${length}*${lineNum}+${length} ))) 
 					printf "${boundaryChar}%-*s" ${length} "${substr}" >> usr/table.txt
 				fi
 			done
@@ -111,7 +114,7 @@ printTable() {
 	
 	# time name place 
 	while read selected_num; do
-		name=$(eval echo \${nameArray${selected_num}})
+		name=$(eval echo \${nameArray${selected_num}} | sed 's/\ /\\ /g' | sed "s/'/\\'/g" | sed 's/(/\\(/g' | sed 's/)/\\)/g')
 		place=$(eval echo \${placeArray${selected_num}})
 		times=$(eval echo \${timeArray${selected_num}})
 		for time in ${times}; do
@@ -128,22 +131,22 @@ printTable() {
 	
 	IFS=$'\t'
 	while read time name place; do
+		name=$(echo $name | sed 's/\ /\\ /g' | sed "s/'/\\'/g" | sed 's/(/\\(/g' | sed 's/)/\\)/g')
 		hour=$(echo ${time} | cut -c 1)
 		day=$(echo ${time} | cut -c 2)
 		if [ ${options2} = 0 ] && [ ${day} = 6 -o ${day} = 7 ] ; then  
 			continue
 		fi
-		eval hourMap${hour}="$(eval echo \${hourMap${hour}})"+"${day}@${name}@${place}"$'\n'
+		eval hourMap${hour}="$(eval echo \${hourMap${hour}} | sed 's/\ /\\ /g' | sed "s/'/\\'/g" | sed 's/(/\\(/g' | sed 's/)/\\)/g')""${day}@${name}@${place}#"
 	done < usr/sortclass.txt
 	IFS=$' \t\n'
 	table=""
-
 	printDay
 	
 	# print hour row
 	for hour in ${hours}; do
 		IFS=$'\n'
-		printRow ${hour} "$(eval echo \${hourMap${hour}})" 
+		printRow ${hour} "$(eval echo \${hourMap${hour}} | sed 's/\ /\\ /g' | sed "s/'/\\'/g" | sed 's/(/\\(/g' | sed 's/)/\\)/g')" 
 		IFS=$' \t\n'
 	done
 
@@ -153,5 +156,3 @@ printTable() {
 	rm usr/sortclass.txt usr/table.txt
 
 }
-resetRowTable
-printTable

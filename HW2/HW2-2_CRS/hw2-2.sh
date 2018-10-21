@@ -3,7 +3,7 @@
 . ./prepareClassinfo.sh
 . ./printTimetable.sh
 . ./selectClass.sh
-# . ./selectEmptyClass.sh
+. ./selectEmptyClass.sh
 . ./options.sh
 . ./search.sh
 
@@ -29,8 +29,7 @@ while true; do
 
 			while true; do
 				if [ ${options3} = 0 ] ; then
-					# addEmptyClass
-					addClass
+					addEmptyClass
 				else
 					addClass
 				fi
