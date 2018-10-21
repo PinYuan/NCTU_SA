@@ -1,8 +1,9 @@
+#! /bin/sh
 msgLength=55
 
 searchByTime() {
 	dialog --inputbox "Courses in particular time" 10 30 2> usr/searchByTime.txt 
-	wantedTime=()
+	wantedTime=""
 
 	times=$(cat usr/searchByTime.txt)
 
@@ -13,15 +14,17 @@ searchByTime() {
 	fi
 
 	for time in ${times}; do
-		day=${time:0:1}
-		for (( i=1; i<${#time}; i++ )); do
-			hour=${time:${i}:1}
-			wantedTime+=("${hour}${day}")
+		day=$(echo ${time} | cut -c 1)
+		for i in $(seq 2 ${#time}); do
+		# for (( i=1; i<${#time}; i++ )); do
+			# hour=${time:${i}:1}
+			hour=$(echo ${time} | cut -c ${i})
+			wantedTime=${wantedTime}" ${hour}${day}"
 		done
 	done
 
-	matchNum=()
-	for num in {1..130}; do
+	matchNum=""
+	for num in $(seq 1 130); do
 		found=0
 		for wTime in ${wantedTime[@]}; do
 			tmpFound=1
@@ -37,27 +40,29 @@ searchByTime() {
 			fi
 		done
 		if [ ${found} = 0 ] ; then
-			matchNum+=(${num})
+			matchNum=${matchNum}" ${num}"
 		fi
 	done
 
-	if [ ${#matchNum[@]} -eq 0 ] ; then
+	if [ ${#matchNum} -eq 0 ] ; then
 		printf "Can not find (ಥ_ʖಥ)\n" >> usr/searchMsg.txt
 	else
 		printf "Find %s match:\n\n" ${#matchNum[@]} >> usr/searchMsg.txt
 
-		for num in "${matchNum[@]}"; do
+		for num in "${matchNum}"; do
+			class=$(eval echo \${totalArray${num}})
 			for lineNum in 0 1; do
 				case ${lineNum} in 
 					0)
-						printf "%-*s\n" ${msgLength} "${totalArray[${num}]:0:${msgLength}}" >> usr/searchMsg.txt
+						substr=$(echo ${class} | cut -c 1-${msgLength})
+						printf "%-*s\n" ${msgLength} "${substr}" >> usr/searchMsg.txt
 					;;
 					1)
 						if [ $(( ${#totalArray[${num}]} / ${msgLength} )) -lt ${lineNum} ] ; then
 							printf "\n" >> usr/searchMsg.txt
 						else
-							printf "%-*s\n\n" ${msgLength} "${totalArray[${num}]:$(( ${msgLength}*${lineNum} )):${msgLength}}" >> usr/searchMsg.txt
-							
+							substr=$(echo ${class} | cut -c $(( ${msgLength}*${lineNum}+1 ))-$(( ${msgLength}*${lineNum}+1+${msgLength} )))
+							printf "%-*s\n\n" ${msgLength} "${substr}" >> usr/searchMsg.txt
 						fi
 					;;
 				esac
@@ -79,30 +84,32 @@ searchByName() {
 		return
 	fi
 
-	matchNum=()
-	for num in {1..130}; do
+	matchNum=""
+	for num in $(seq 1 130); do
 		if echo ${nameArray[${num}]} | grep -iqF ${wantedName}; then
-		    matchNum+=(${num})
+		    matchNum=${matchNum}+" ${num}"
 		fi
 	done
 
-	if [ ${#matchNum[@]} -eq 0 ] ; then
+	if [ ${#matchNum} -eq 0 ] ; then
 		printf "Can not find (ಥ_ʖಥ)\n" >> usr/searchMsg.txt
 	else
 		printf "Find %s match:\n\n" ${#matchNum[@]} >> usr/searchMsg.txt
 
-		for num in "${matchNum[@]}"; do
+		for num in "${matchNum}"; do
+			class=$(eval echo \${totalArray${num}})
 			for lineNum in 0 1; do
 				case ${lineNum} in 
 					0)
-						printf "%-*s\n" ${msgLength} "${totalArray[${num}]:0:${msgLength}}" >> usr/searchMsg.txt
+						substr=$(echo ${class} | cut -c 1-${msgLength})
+						printf "%-*s\n" ${msgLength} "${substr}" >> usr/searchMsg.txt
 					;;
 					1)
 						if [ $(( ${#totalArray[${num}]} / ${msgLength} )) -lt ${lineNum} ] ; then
 							printf "\n" >> usr/searchMsg.txt
 						else
-							printf "%-*s\n\n" ${msgLength} "${totalArray[${num}]:$(( ${msgLength}*${lineNum} )):${msgLength}}" >> usr/searchMsg.txt
-							
+							substr=$(echo ${class} | cut -c $(( ${msgLength}*${lineNum}+1 ))-$(( ${msgLength}*${lineNum}+1+${msgLength} )))
+							printf "%-*s\n\n" ${msgLength} "${substr}" >> usr/searchMsg.txt
 						fi
 					;;
 				esac

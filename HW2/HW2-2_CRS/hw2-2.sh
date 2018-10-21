@@ -1,11 +1,11 @@
-#!/bin/bash
+#! /bin/sh
 
-source prepareClassinfo.sh
-source printTimetable.sh
-source selectClass.sh
-source selectEmptyClass.sh
-source options.sh
-source search.sh
+. ./prepareClassinfo.sh
+. ./printTimetable.sh
+. ./selectClass.sh
+# . ./selectEmptyClass.sh
+. ./options.sh
+. ./search.sh
 
 initUserData
 initOption
@@ -28,8 +28,9 @@ while true; do
 			fi
 
 			while true; do
-				if [ ${options[3]} = 0 ] ; then
-					addEmptyClass
+				if [ ${options3} = 0 ] ; then
+					# addEmptyClass
+					addClass
 				else
 					addClass
 				fi

@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/sh
 
 seperateLine="  =============="
 spaceLine="            "
@@ -6,37 +6,54 @@ spaceSmallLine="           "
 spaceDayLine="            " 
 daysFull=".Mon .Tue .Wed .The .Fri .Sat .Sun"
 daysLimit=".Mon .Tue .Wed .The .Fri"
-hoursFull=(M N A B C D X E F G H I J K L) # less importtant: 0, 1, 6, 14
-hoursLimit=(A B C D E F G H I J K)
+hoursFull="M N A B C D X E F G H I J K L" # less importtant: 0, 1, 6, 14
+hoursLimit="A B C D E F G H I J K"
 startChar="."
 emptyChar="x"
 boundaryChar="  |"
 length=13 
 
+# tmp
+options1=0
+options2=0
+options3=0
+# build a number2time array
+while read item time; do
+	time=$(echo ${time} | sed 's/\ /\\ /g')
+	eval timeArray${item}=${time}
+	# echo ${item} ${time}
+done < classinfo/class_time.txt
+   
+# build a number2name array
+while read item name; do
+	name=$(echo ${name} | sed 's/\ /\\ /g' | sed 's/\x27/\\\x27/g' | sed 's/(/\\(/g' | sed 's/)/\\)/g')
+	eval nameArray${item}=${name}
+done < classinfo/class_name.txt
 
-# inArray() {
-# 	# ( keyOrValue, arrayKeysOrValues ) 
-# 	local e
-# 	for e in ${@:2}; do 
-# 		[[ "$e" == "$1" ]] && return 0; 
-# 	done
-#   	return 1
-# }
+# build total imformation array
+while read item class; do
+	eval totalArray${item}=$(echo ${class} | sed 's/\ /\\ /g' | sed 's/\x27/\\\x27/g' | sed 's/(/\\(/g' | sed 's/)/\\)/g')
+done < classinfo/class_total.txt
+
+# build a number2place array
+while read item place; do
+	eval placeArray${item}=${place}
+done < classinfo/class_place.txt
 
 resetRowTable() {
-	rowtable=()
+	# rowtable=()
 	
-	if [ ${options[2]} = 0 ] ; then
+	if [ ${options2} = 0 ] ; then
 		days=${daysLimit}
-		hours=( "${hoursLimit[@]}" )
-		for i in {1..5}; do
-			rowtable[${i}]=""
+		hours=${hoursLimit}
+		for i in $(seq 1 5); do
+			eval rowtable${i}=""
 		done
 	else
 		days=${daysFull}
-		hours=( "${hoursFull[@]}" )
-		for i in {1..7}; do
-			rowtable[${i}]=""
+		hours=${hoursFull}
+		for i in $(seq 1 7); do
+			eval rowtable${i}=""
 		done
 	fi
 }
@@ -51,7 +68,8 @@ printDay() {
 
 printSepRow() {
 	printf "=" >> usr/table.txt
-	for (( day=1; day<${#rowtable[@]}+1; day++ )); do
+	for day in $(seq 1 ${#days}); do
+	# for (( day=1; day<${#rowtable[@]}+1; day++ )); do
 		printf ${seperateLine} >> usr/table.txt
 	done 
 	printf "  =\n" >> usr/table.txt
@@ -68,10 +86,10 @@ printRow() {
 		day="$(echo "${day_class}" | cut -d '@' -f 1)"
 		class="$(echo "${day_class}" | cut -d '@' -f 2)"
 		place="$(echo "${day_class}" | cut -d '@' -f 3)"
-		if [ ${options[1]} = 0 ] ; then
-			rowtable[${day}]=${class}@${place}
+		if [ ${options1} = 0 ] ; then
+			rowtable${day}=${class}@${place}
 		else 
-			rowtable[${day}]=${class}
+			rowtable${day}=${class}
 		fi
 	done
 
@@ -85,19 +103,26 @@ printRow() {
 		# class block
 
 		if [ ${lineNum} = 0 ] ; then
-			for (( day=1; day<${#rowtable[@]}+1; day++ )); do # 5~7 day
-				if [ -z "${rowtable[${day}]}" ] ; then
+			for day in $(seq 1 ${#days}); do # 5~7 day
+			# for (( day=1; day<${#rowtable[@]}+1; day++ )); do # 5~7 day
+				if [ -z "eval echo \${rowtable${day}}" ] ; then
 					printf "${boundaryChar}${emptyChar}${startChar}${spaceSmallLine}" >> usr/table.txt
 				else
-					printf "${boundaryChar}%-*s" ${length} "${rowtable[${day}]:0:${length}}" >> usr/table.txt
+					substr=$(eval echo \${rowtable${day}} | cut -c 1-${length})
+					printf "${boundaryChar}%-*s" ${length} "${substr}" >> usr/table.txt
+					# printf "${boundaryChar}%-*s" ${length} "${rowtable[${day}]:0:${length}}" >> usr/table.txt
 				fi
 			done
 		else # print rest string
-			for (( day=1; day<${#rowtable[@]}+1; day++ )); do # 5~7 day
-				if [ $(( ${#rowtable[${day}]} / ${length} )) -lt ${lineNum} ] ; then
+			for day in $(seq 1 ${#days}); do # 5~7 day
+			# for (( day=1; day<${#rowtable[@]}+1; day++ )); do # 5~7 day
+				str=$(eval echo \${rowtable${day}})
+				if [ $(( ${#str} / ${length} )) -lt ${lineNum} ] ; then
 					printf "${boundaryChar}${startChar}${spaceLine}" >> usr/table.txt
 				else
-					printf "${boundaryChar}%-*s" ${length} "${rowtable[${day}]:$(( ${length}*${lineNum} )):${length}}" >> usr/table.txt
+					substr=$(echo ${str} | cut -c $(( ${length}*${lineNum}+1 ))-$(( ${length}*${lineNum}+1+${length}} ))) 
+					printf "${boundaryChar}%-*s" ${length} "${substr}" >> usr/table.txt
+					# printf "${boundaryChar}%-*s" ${length} "${rowtable[${day}]:$(( ${length}*${lineNum} )):${length}}" >> usr/table.txt
 				fi
 			done
 		fi
@@ -115,9 +140,10 @@ printTable() {
 
 	# time name place 
 	while read selected_num; do
-		name=${nameArray[${selected_num}]}
-		place=${placeArray[${selected_num}]}
-		for time in ${timeArray[${selected_num}]}; do
+		name=$(eval echo \${nameArray${selected_num}})
+		place=$(eval echo \${placeArray${selected_num}})
+		times=$(eval echo \${timeArray${selected_num}})
+		for time in ${times}; do
 			printf "%s\t%s\t%s\n" "${time}" "${name}" "${place}" >> usr/sortclass.txt
 		done
 	done < usr/selected.txt
@@ -125,14 +151,19 @@ printTable() {
 	# sort by hour 
 	sort -k 1 -o usr/sortclass.txt usr/sortclass.txt
 
-	declare -A hourMap
+	# declare -A hourMap
+	for hour in ${hours}; do
+		eval hourMap${hour}=""
+	done
 
 	IFS=$'\t'
 	while read time name place; do
-		if [ ${options[2]} = 0 ] && [ ${time:1:1} = 6 -o ${time:1:1} = 7 ] ; then
+		hour=$(echo ${time} | cut -c 1)
+		day=$(echo ${time} | cut -c 2)
+		if [ ${day} = 6 -o ${day} = 7 ] ; then # [ ${options2} = 0 ] && 
 			continue
 		fi
-		hourMap[${time:0:1}]+=${time:1:1}@${name}@${place}$'\n'
+		eval hourMap${hour}="$(eval echo \${hourMap${hour}})"+"${day}@${name}@${place}"$'\n'
 	done < usr/sortclass.txt
 	IFS=$' \t\n'
 
@@ -142,8 +173,8 @@ printTable() {
 
 	# print hour row
 	IFS=$'\n'
-	for hour in "${hours[@]}"; do
-		printRow ${hour} "${hourMap[${hour}]}"
+	for hour in ${hours}; do
+		printRow ${hour} "$(eval echo \${hourMap${hour}})" #"${hourMap[${hour}]}"
 	done
 	IFS=$' \t\n'
 
@@ -152,3 +183,5 @@ printTable() {
 	
 	rm usr/sortclass.txt usr/table.txt
 }
+resetRowTable
+printTable

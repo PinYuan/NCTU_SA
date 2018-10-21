@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 initOption() {
 	test -e usr/options.txt
@@ -6,12 +6,14 @@ initOption() {
 		touch usr/options.txt
 	fi
 
-	ops=("Show\ classroom" "Hide\ extra\ column" "Enable\ empty\ class\ selection")
+	ops1="Show\ classroom"
+	ops2="Hide\ extra\ column"
+	ops3="Enable\ empty\ class\ selection"
 }
 
 optionWindow() {
 	selected=$(cat usr/options.txt)
-	local paires
+	local paires=""
 
 	for i in 1 2 3; do
 		have=1
@@ -22,13 +24,15 @@ optionWindow() {
 			fi
 		done
 		if [ ${have} = 0 ] ; then
-			paires+=(${i} ${ops[$(( ${i}-1 ))]} on)
+			opstr=$(eval echo \${ops${i}})
+			paires=${paires}" ${i} ${opstr} on"
 		else
-			paires+=(${i} ${ops[$(( ${i}-1 ))]} off)
+			opstr=$(eval echo \${ops${i}})
+			paires=${paires}" ${i} ${opstr} off"
 		fi
 	done
 
-	echo ${paires[@]} | xargs dialog --stdout --backtitle "Checklist" --checklist "Options" 25 60 3 > usr/options_tmp.txt
+	echo ${paires} | xargs dialog --stdout --backtitle "Checklist" --checklist "Options" 25 60 3 > usr/options_tmp.txt
 	if [ $? = 0 ] ; then # ok
 		cp usr/options_tmp.txt usr/options.txt
 	fi
@@ -40,10 +44,10 @@ loadOptions() {
 	selected=$(cat usr/options.txt)
 
 	for i in 1 2 3; do
-		options[${i}]=1
+		eval options${i}=1
 		for num in ${selected}; do
 			if [ "${i}" = "${num}" ] ; then
-				options[${i}]=0
+				eval options${i}=0
 				break
 			fi
 		done

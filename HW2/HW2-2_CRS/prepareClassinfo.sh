@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/sh
 
 test -d classinfo
 if [ $? != 0 ] ; then
@@ -23,7 +23,7 @@ grep -oP '"cos_time":"\K[^"]*(?=")' classinfo/nctucsClass.json > classinfo/class
 # class time
 grep -oP '^.*(?=-)' classinfo/class_time_place.txt | sed 's/-[^,]*,/,/g' | \
 while read line; do
-	echo $(grep -Eo '[0-9][A-Z]*' <<< ${line}) 
+	echo $(echo ${line} | grep -Eo '[0-9][A-Z]*')
 done > classinfo/class_time_tmp.txt
 
 # class place
@@ -39,9 +39,10 @@ cat classinfo/class_time_tmp.txt | \
 while read line; do
 	first=0
 	for time in ${line}; do
-		day=${time:0:1}
-		for (( i=1; i<${#time}; i++ )); do
-			hour=${time:${i}:1}
+		day=$(echo ${time} | cut -c 1) # day=${time:0:1}
+		for i in $(seq 2 ${#time}); do
+		# for (( i=1; i<${#time}; i++ )); do
+			hour=$(echo ${time} | cut -c ${i}) # ${time:${i}:1}
 			if [ ${first} = 0 ] ; then
 				printf "${hour}${day}"
 				first=1
@@ -61,20 +62,23 @@ rm classinfo/class_name_tmp.txt classinfo/class_time_tmp.txt classinfo/class_pla
 
 # build a number2time array
 while read item time; do
-	timeArray[${item}]=${time}
+	time=$(echo ${time} | sed 's/\ /\\ /g')
+	eval timeArray${item}=${time}
+	# echo ${item} ${time}
 done < classinfo/class_time.txt
-
+   
 # build a number2name array
 while read item name; do
-	nameArray[${item}]=${name}
+	name=$(echo ${name} | sed 's/\ /\\ /g' | sed 's/\x27/\\\x27/g' | sed 's/(/\\(/g' | sed 's/)/\\)/g')
+	eval nameArray${item}=${name}
 done < classinfo/class_name.txt
 
 # build total imformation array
 while read item class; do
-	totalArray[${item}]=${class}
+	eval totalArray${item}=$(echo ${class} | sed 's/\ /\\ /g' | sed 's/\x27/\\\x27/g' | sed 's/(/\\(/g' | sed 's/)/\\)/g')
 done < classinfo/class_total.txt
 
 # build a number2place array
 while read item place; do
-	placeArray[${item}]=${place}
+	eval placeArray${item}=${place}
 done < classinfo/class_place.txt

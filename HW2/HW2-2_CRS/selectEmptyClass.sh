@@ -1,3 +1,4 @@
+#! /bin/sh
 addEmptyClass() {
 	local paires=()
 	selected=()
