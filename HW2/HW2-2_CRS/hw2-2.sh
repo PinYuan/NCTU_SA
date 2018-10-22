@@ -18,7 +18,7 @@ while true; do
 	case ${state} in
 		0) # add class
 			searchOrNot
-			if [ $? = 0 -a $(cat usr/searchWhich.txt) != 3 ] ; then
+			if [ $? = 0 ] && ! [ $(cat usr/searchWhich.txt) = 3 ] ; then
 				if [ $(cat usr/searchWhich.txt) = 1 ] ; then
 					searchByTime
 				else

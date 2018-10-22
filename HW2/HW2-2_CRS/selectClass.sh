@@ -20,6 +20,7 @@ initUserData() {
 addClass() {
 	local paires=""
 	selected=""
+	new_unselected=""
 
 	sort -n -k 1 -o usr/unselected.txt usr/unselected.txt
 	sort -n -k 1 -o usr/selected.txt usr/selected.txt
@@ -77,32 +78,50 @@ addClass() {
 
 checkCollision() {
 	> usr/selected.txt
-	unset conflictMAP
 	test -e usr/conflictTimes.txt
 	if [ $? = 0 ] ; then
+		conflictTimes=$(cat usr/conflictTimes.txt)
+		for time in ${conflictTimes}; do
+			eval conflictMAP${time}=""
+			eval inTime${time}=""
+		done
 		rm usr/conflictTimes.txt
 	fi
 	touch usr/conflictTimes.txt	
 	
-	new_selected_nums=`cat usr/new_selected.txt | xargs echo`
+	new_selected_nums=$(cat usr/new_selected.txt)
 	for new_selected_num in ${new_selected_nums}; do
 		new_selected_time=$(eval echo \${timeArray${new_selected_num}})
 		neverConflict=0
 		
 		for new_time in ${new_selected_time}; do
 			conflict=1
+			
 			while read selected_num; do
 				selected_time=$(eval echo \${timeArray${selected_num}})
 				for time in ${selected_time}; do
 					if [ ${new_time} = ${time} ] ; then
-						eval conflictMAP${new_time}="$(eval echo \${conflictMAP${new_time}})""@""$(eval echo \${nameArray${selected_num}} | sed 's/\ /\\ /g' | sed "s/'/\\'/g" | sed 's/(/\\(/g' | sed 's/)/\\)/g')"
+						# check whether has conflicted
+						in=1
+						
+						for num in $(eval echo \${inTime${new_time}}); do
+							if [ ${num} = ${selected_num} ] ; then 
+								in=0 
+								break
+							fi	
+						done
+						# if not, add
+						if [ ${in} = 1 ] ; then
+							eval conflictMAP${new_time}="$(eval echo \${conflictMAP${new_time}} | sed 's/\ /\\ /g' | sed "s/'/\\'/g" | sed 's/(/\\(/g' | sed 's/)/\\)/g')"@"$(eval echo \${nameArray${selected_num}} | sed 's/\ /\\ /g' | sed "s/'/\\'/g" | sed 's/(/\\(/g' | sed 's/)/\\)/g')"
+							eval inTime${new_time}="$(eval echo \${inTime${new_time}})""\ ${selected_num}"
+						fi
 						neverConflict=1
 						conflict=0
 						break
 					fi
 				done
 			done < usr/selected.txt
-
+			
 			# if conflict add new at the end
 			if [ ${conflict} = 0 ] ; then \
 				echo ${new_time} >> usr/conflictTimes.txt
@@ -115,7 +134,7 @@ checkCollision() {
 			removes=${removes}" ${new_selected_num}"
 		fi
 	done 
-
+	
 	# update usr/unselected.txt
 	# remove
 	for remove in ${removes}; do
@@ -132,15 +151,15 @@ checkCollision() {
 	done
 	# add
 	for add in ${new_unselected}; do
-		printf "${add}\t%s\n" "$(eval echo \${totalArray${add}} | sed 's/\ /\\ /g' | sed "s/'/\\'/g" | sed 's/(/\\(/g' | sed 's/)/\\)/g')" >> usr/unselected.txt
+		printf "${add}\t%s\n" "$(eval echo \${totalArray${add}})" >> usr/unselected.txt
 	done
 }
 
 showCollision() {
 	msg=""
 	NEWLINE=$'\n'
-	conflictTimes=$(cat usr/conflictTimes.txt)
-
+	conflictTimes=$(sort usr/conflictTimes.txt | uniq)
+	
 	for time in ${conflictTimes}; do 
 		day=$(echo ${time} | cut -c 2)
 		hour=$(echo ${time} | cut -c 1)
@@ -150,12 +169,9 @@ showCollision() {
 		msg=${msg}"======================================${NEWLINE}${NEWLINE}"
 	done
 	
-	# for i in ${!conflictMAP[@]}; do
-	# 	echo "Key: ${i}"
-	# 	echo "Value: ${conflictMAP[${i}]}"
-	# done
 	if [ -n "${msg}" ] ; then
-		dialog --msgbox "${msg}" 25 50
+		echo "${msg}" > usr/collisionMsg.txt
+		dialog --textbox usr/collisionMsg.txt 25 50
 		return 0
 	else
 		return 1
