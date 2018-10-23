@@ -7,7 +7,7 @@ searchByTime() {
 
 	times=$(cat usr/searchByTime.txt)
 
-	test -e ${times}
+	test -e "${times}"
 	if [ $? = 0 ] ; then
 		rm usr/searchByTime.txt 
 		return
@@ -76,7 +76,7 @@ searchByName() {
 	dialog --inputbox "Courses keyword" 10 30 2> usr/searchByName.txt 
 	wantedName=$(cat usr/searchByName.txt)
 
-	test -e ${wantedName}
+	test -e "${wantedName}"
 	if [ $? = 0 ] ; then
 		rm usr/searchByName.txt 
 		return
@@ -84,7 +84,7 @@ searchByName() {
 	
 	matchNum=""
 	for num in $(seq 1 130); do
-		eval echo \${nameArray${num}} | grep -iqF ${wantedName}
+		eval echo \${nameArray${num}} | grep -iqF "${wantedName}"
 		if [ $? = 0 ] ; then
 		    matchNum=${matchNum}" ${num}"
 		fi
