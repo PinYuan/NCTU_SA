@@ -118,7 +118,11 @@ message='The secret code is 12345'
 echo "${message//[0-9]/X}"           # prints 'The secret code is XXXXX'
 ```
 
+### Source another shell script(Bourne shell)
 
+```sh
+. ./library.sh
+```
 
 
 

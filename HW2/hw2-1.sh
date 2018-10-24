@@ -1,3 +1,4 @@
+#!/bin/sh
 # reference	http://wanggen.myweb.hinet.net/ach3/ach3.html?MywebPageId=2018301538296412183#awk
 # awk 的指令間隔：
 # 	所有 awk 的動作，亦即在 {} 內的動作，如果有需要多個指令輔助時，可利用分號『;』間隔， 
