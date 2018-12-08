@@ -1,0 +1,59 @@
+#!/bin/sh
+
+# PROVIDE: ftp_watchd 
+# REQUIRE: pure_ftpd
+# BEFORE:  
+# KEYWORD: 
+
+. /etc/rc.subr
+
+name="ftp_watchd" # How the service will be invoked from service
+rcvar="${name}_enable" # The variable in rc.conf that will allow this service to run
+load_rc_config $name # Loads the config file, if relevant.
+
+procname="pure-uploadscript"
+pidfile="/var/run/pure-uploadscript.pid"
+
+pureftpd_uploadscript="/uploadscript.sh"
+command_upload="/usr/local/sbin/pure-uploadscript"
+
+: ${ftp_watchd_command:="echo hi >> /var/log/uploadscript.log"}
+
+start_cmd="${name}_start"
+stop_cmd="${name}_stop"
+# restart_cmd="${name}_restart"
+status_cmd="${name}_status"
+# poll_cmd="${name}_poll"
+ 
+ftp_watchd_start()
+{
+    if checkyesno ${rcvar}; then
+		test -e ${pureftpd_uploadscript} && rm ${pureftpd_uploadscript}
+		echo "#!/bin/sh" >> ${pureftpd_uploadscript}
+		echo "${ftp_watchd_command}" >>　${pureftpd_uploadscript}	
+		chmod a+x ${pureftpd_uploadscript}
+		
+		${command_upload} -B -r ${pureftpd_uploadscript}
+		echo "Starting ftp_watchd"
+    fi
+}
+ftp_watchd_stop()
+{
+    if [ -e $pidfile ] ; then 
+		pid=`cat ${pidfile}`
+		echo "Stoping ftp_watchd"
+		kill -TERM ${pid}
+		rm ${pidfile}
+	fi
+}
+ftp_watchd_status()
+{
+    if [ -e $pidfile ] ; then 
+		echo "pure-uploadscript is running on PID $(cat $pidfile)." 
+		return 1
+	fi
+	echo "pure-uploadscript is not running." 
+	return 0
+}
+
+run_rc_command "$1"

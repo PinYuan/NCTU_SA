@@ -1,0 +1,92 @@
+#! /usr/local/bin/bash
+
+if [ "$#" == "0" ] ; then
+	echo "usage: [--list | --delete | --export] target-dataset [ID] | [--import] target-dataset filename | target dataset [rotation count]"
+	exit 0
+fi
+
+case "$1" in
+	"list")
+		if [ "$#" == "1" ] ; then
+			zfs list -r -t snapshot | grep zbackup | 
+				awk 'BEGIN { 
+						print "ID\tDataset\tTime"\
+						ID=1
+					} 
+					{
+						print ID"\t"$1
+						ID++
+					}
+				'		
+		elif [ "$#" == "2" ] ; then
+			zfs list -r -t snapshot $2 | grep zbackup | 
+				awk 'BEGIN { 
+						print "ID\tDataset\tTime"\
+						ID=1
+					} 
+					{
+						print ID"\t"$1
+						ID++
+					}
+				'		
+		else 
+			zfs list -r -t snapshot $2 | grep zbackup | 
+				awk -v ID=$3 'BEGIN { 
+						print "ID\tDataset\tTime"\
+						line=1
+					}
+					{
+						if (line == ID) {
+							print ID"\t"$1
+						}
+						line++
+					}
+			' 
+		fi
+	;;
+	"delete")
+		if [ "$#" == "2" ] ; then
+			for snapshot in `zfs list -r -t snapshot ${2} | grep zbackup | cut -d ' ' -f 1` ; do
+				zfs destroy ${snapshot}
+			done
+		else 
+			ID=1
+			for snapshot in `zfs list -r -t snapshot ${2} | grep zbackup | cut -d ' ' -f 1` ; do
+				if [ ${ID} -eq ${3} ] ; then
+					zfs destroy ${snapshot}
+					exit 0
+				fi
+				ID=$((${ID}+1))
+			done
+		fi
+	;;
+	"export")
+
+	;;
+	"import")
+
+	;;
+	*)
+		if [ $# -eq 2 ] ; then
+			rotationCount="${2}"
+		else
+			rotationCount=20
+		fi
+		
+		zfs snapshot "${1}"@"zbackup"-"`date +"%F_%T"`" # dataset@snapshotname-time
+		echo "Snap "${1}@"`date`"
+
+		num_of_snap=`zfs list -r -t snapshot ${1} | grep zbackup | wc -l`
+		if [ ${num_of_snap} -lt ${rotationCount} ] ; then
+			exit 0
+		fi
+
+		# need rotate until equal to rotation count
+		while [ ${num_of_snap} -gt ${rotationCount} ] ; do
+			num_of_snap=$((${num_of_snap}-1))
+			deleteFile=`zfs list -r -t snapshot ${1} | grep zbackup | head -n 1 | cut -d ' ' -f 1`
+			zfs destroy ${deleteFile}
+			echo "Rotate "${deleteFile}
+		done
+	;;
+esac
