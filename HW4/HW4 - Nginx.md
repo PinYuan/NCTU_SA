@@ -94,16 +94,15 @@ reference: https://www.digitalocean.com/community/tutorials/how-to-set-up-passwo
    - ```shell
      # /usr/local/etc/nginx/nginx.conf
      location /public/admin {
+         index index.html;
          auth_basic "Restricted Content";
-         auth_basic_user_file /var/www/nginx/nginx.passwd;
+         auth_basic_user_file /var/www/nginx.passwd;
      }
      ```
 
 3. Set password for htaccess
 
    - `sudo htpasswd -c /var/www/nginx.passwd admin`
-
-待檢查授權是否為過期 成功過一次
 
 
 
